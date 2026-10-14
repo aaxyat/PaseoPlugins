@@ -19,6 +19,10 @@ import { SubagentsWidget } from "./widgets/subagents-widget.tsx";
 import { TokensWidget } from "./widgets/tokens-widget.tsx";
 import { EngineUsageWidget } from "./widgets/engine-usage-widget.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "./design-tokens.ts";
+import {
+  useDashboardVisibility,
+  setDashboardVisible,
+} from "./dashboard-visibility.ts";
 
 export interface AmbientPanelProps {
   theme: { colors: Record<string, string> };
@@ -52,6 +56,12 @@ export function AmbientPanel({
       accent: theme.colors.accent ?? "#4ade80",
     };
   }, [theme]);
+
+  const isVisible = useDashboardVisibility(workspaceId ?? "global");
+
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.surface0 }}>
@@ -90,6 +100,7 @@ export function AmbientPanel({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close panel"
+            onPress={() => setDashboardVisible(workspaceId ?? "global", false)}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
             <Icon name="X" size={16} color={colors.foregroundMuted} />

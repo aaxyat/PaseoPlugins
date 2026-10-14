@@ -1,4 +1,9 @@
 import type { PluginButtonRegistration, PluginClientContext } from "@getpaseo/plugin/client";
+import {
+  isDashboardVisible,
+  setDashboardVisible,
+  watchDashboardVisibility,
+} from "./dashboard-visibility.ts";
 
 type WorkspacesApi = PluginClientContext["paseo"]["workspaces"];
 type ListResult = Awaited<ReturnType<WorkspacesApi["list"]>>;
@@ -8,8 +13,8 @@ const PANEL_ID = "ambient";
 const PAGE_LIMIT = 200;
 
 /**
- * Contributes a header button for each workspace to activate the Ambient dashboard.
- * Mirrors the workspace directory subscription pattern used in official Paseo plugins.
+ * Contributes a header button for each workspace to toggle the Ambient dashboard.
+ * Clicking once opens and activates the dashboard; clicking again hides it.
  */
 export function contributeHeaderButtons(
   client: PluginClientContext,
@@ -28,18 +33,33 @@ export function contributeHeaderButtons(
   function add(workspaceId: string) {
     if (disposed || buttons.has(workspaceId)) return;
 
+    const currentVisible = isDashboardVisible(workspaceId);
+
     buttons.set(
       workspaceId,
       client.addHeaderButton({
         id: BUTTON_ID,
         workspaceId,
         button: {
-          title: "Ambient Dashboard",
+          title: currentVisible ? "Hide Ambient Dashboard" : "Ambient Dashboard",
           icon: "Gauge",
           behavior: {
             kind: "action",
             onPress() {
-              client.openPanel(PANEL_ID, { workspaceId, location: "explorer" });
+              const currentlyVisible = isDashboardVisible(workspaceId);
+              if (currentlyVisible) {
+                // Clicked again while open -> Hide dashboard
+                setDashboardVisible(workspaceId, false);
+                try {
+                  client.openPanel("files", { workspaceId, location: "explorer" });
+                } catch {
+                  // ignore if files panel is not openable via rpc
+                }
+              } else {
+                // Clicked while hidden -> Activate and open dashboard
+                setDashboardVisible(workspaceId, true);
+                client.openPanel(PANEL_ID, { workspaceId, location: "explorer" });
+              }
             },
           },
         },
@@ -126,10 +146,17 @@ export function contributeHeaderButtons(
   }, intervalMs);
   void connect();
 
+  const stopVisibility = watchDashboardVisibility((workspaceId, visible) => {
+    buttons.get(workspaceId)?.update({
+      title: visible ? "Hide Ambient Dashboard" : "Ambient Dashboard",
+    });
+  });
+
   return () => {
     disposed = true;
     ++generation;
     clearInterval(timer);
+    stopVisibility();
     const stop = release;
     release = undefined;
     if (stop) void stop().catch(report);
