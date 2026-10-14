@@ -42,9 +42,13 @@ function ProgressBar({
 export function EngineUsageWidget({
   data,
   colors,
+  isNarrow = false,
+  isCompact = false,
 }: {
   data: EngineUsage;
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string; accent: string };
+  isNarrow?: boolean;
+  isCompact?: boolean;
 }) {
   const [selectedProvider, setSelectedProvider] = useState<"antigravity" | "opencode">(
     data.activeProvider,
@@ -54,14 +58,22 @@ export function EngineUsageWidget({
   const agData = data.antigravity;
   const ocData = data.opencode;
 
+  const titleText = isNarrow
+    ? isAntigravity ? "agy usage" : "opencode"
+    : isAntigravity ? "antigravity usage" : "opencode usage";
+
   return (
-    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border} style={{ padding: 16, gap: 14 }}>
+    <AmbientCard
+      backgroundColor={colors.surface}
+      borderColor={colors.border}
+      style={{ padding: isNarrow ? 10 : (isCompact ? 12 : 16), gap: isNarrow ? 10 : 14 }}
+    >
       {/* Header with Switcher */}
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Icon name={isAntigravity ? "Zap" : "Code"} size={18} color={isAntigravity ? "#38d9f5" : "#c084fc"} />
-          <Text style={{ fontSize: FONT_SIZE.header, fontWeight: FONT_WEIGHT.semibold, color: colors.foreground }}>
-            {isAntigravity ? "antigravity usage" : "opencode usage"}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 6 : 8 }}>
+          <Icon name={isAntigravity ? "Zap" : "Code"} size={isNarrow ? 15 : 18} color={isAntigravity ? "#38d9f5" : "#c084fc"} />
+          <Text style={{ fontSize: isNarrow ? FONT_SIZE.body : FONT_SIZE.header, fontWeight: FONT_WEIGHT.semibold, color: colors.foreground }}>
+            {titleText}
           </Text>
         </View>
 

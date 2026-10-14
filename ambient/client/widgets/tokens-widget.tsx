@@ -19,6 +19,9 @@ function formatCost(usd: number): string {
 export function TokensWidget({
   data,
   colors,
+  isNarrow = false,
+  isCompact = false,
+  isWide = false,
 }: {
   data: TokensUsage;
   colors: {
@@ -28,12 +31,38 @@ export function TokensWidget({
     surface: string;
     accent: string;
   };
+  isNarrow?: boolean;
+  isCompact?: boolean;
+  isWide?: boolean;
 }) {
+  const badgeLabel = isNarrow
+    ? `${data.cacheHitRatio.toFixed(0)}% cached`
+    : `${data.cacheHitRatio.toFixed(1)}% cache hit`;
+
+  const statItemStyle = {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.02)",
+    borderRadius: RADIUS.badge,
+    paddingHorizontal: isNarrow ? 6 : 10,
+    paddingVertical: isNarrow ? 6 : 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  };
+
+  const statLabelStyle = {
+    fontSize: isNarrow ? 9 : FONT_SIZE.caption,
+    color: colors.foregroundMuted,
+    fontFamily: MONO,
+    marginBottom: 2,
+  };
+
+  const statValueSize = isNarrow ? 12 : FONT_SIZE.body;
+
   return (
     <AmbientCard
       backgroundColor={colors.surface}
       borderColor={colors.border}
-      style={{ padding: 14, gap: 12 }}
+      style={{ padding: isNarrow ? 10 : (isCompact ? 12 : 14), gap: isNarrow ? 8 : 12 }}
     >
       {/* Header */}
       <View
@@ -43,11 +72,11 @@ export function TokensWidget({
           alignItems: "center",
         }}
       >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Icon name="Coins" size={16} color="#eab308" />
+        <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 6 : 8 }}>
+          <Icon name="Coins" size={isNarrow ? 14 : 16} color="#eab308" />
           <Text
             style={{
-              fontSize: FONT_SIZE.header,
+              fontSize: isNarrow ? FONT_SIZE.body : FONT_SIZE.header,
               fontWeight: FONT_WEIGHT.semibold,
               color: colors.foreground,
             }}
@@ -56,153 +85,76 @@ export function TokensWidget({
           </Text>
         </View>
         <Badge
-          label={`${data.cacheHitRatio.toFixed(1)}% cache hit`}
+          label={badgeLabel}
           backgroundColor="rgba(74, 222, 128, 0.12)"
           color="#4ade80"
         />
       </View>
 
       {/* Token Breakdown Grid */}
-      <View style={{ gap: 8 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-          {/* Total Input Tokens */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.02)",
-              borderRadius: RADIUS.badge,
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: FONT_SIZE.caption,
-                color: colors.foregroundMuted,
-                fontFamily: MONO,
-                marginBottom: 2,
-              }}
-            >
-              total input
-            </Text>
-            <Text
-              style={{
-                fontSize: FONT_SIZE.body,
-                fontWeight: FONT_WEIGHT.bold,
-                color: colors.foreground,
-                fontFamily: MONO,
-              }}
-            >
-              {formatTokens(data.totalInputTokens)}
-            </Text>
+      <View style={{ gap: isNarrow ? 6 : 8 }}>
+        {isWide ? (
+          /* Wide 4-column row */
+          <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+            <View style={statItemStyle}>
+              <Text style={statLabelStyle}>total input</Text>
+              <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
+                {formatTokens(data.totalInputTokens)}
+              </Text>
+            </View>
+            <View style={statItemStyle}>
+              <Text style={statLabelStyle}>cache hit</Text>
+              <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: "#4ade80", fontFamily: MONO }}>
+                {formatTokens(data.cacheHitTokens)}
+              </Text>
+            </View>
+            <View style={statItemStyle}>
+              <Text style={statLabelStyle}>output tokens</Text>
+              <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
+                {formatTokens(data.outputTokens)}
+              </Text>
+            </View>
+            <View style={statItemStyle}>
+              <Text style={statLabelStyle}>cache ratio</Text>
+              <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: "#38bdf8", fontFamily: MONO }}>
+                {data.cacheHitRatio.toFixed(1)}%
+              </Text>
+            </View>
           </View>
+        ) : (
+          /* 2x2 grid */
+          <>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", gap: isNarrow ? 6 : 8 }}>
+              <View style={statItemStyle}>
+                <Text style={statLabelStyle}>total input</Text>
+                <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
+                  {formatTokens(data.totalInputTokens)}
+                </Text>
+              </View>
+              <View style={statItemStyle}>
+                <Text style={statLabelStyle}>cache hit</Text>
+                <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: "#4ade80", fontFamily: MONO }}>
+                  {formatTokens(data.cacheHitTokens)}
+                </Text>
+              </View>
+            </View>
 
-          {/* Cache Hit Tokens */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.02)",
-              borderRadius: RADIUS.badge,
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: FONT_SIZE.caption,
-                color: colors.foregroundMuted,
-                fontFamily: MONO,
-                marginBottom: 2,
-              }}
-            >
-              cache hit
-            </Text>
-            <Text
-              style={{
-                fontSize: FONT_SIZE.body,
-                fontWeight: FONT_WEIGHT.bold,
-                color: "#4ade80",
-                fontFamily: MONO,
-              }}
-            >
-              {formatTokens(data.cacheHitTokens)}
-            </Text>
-          </View>
-        </View>
-
-        <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-          {/* Output Tokens */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.02)",
-              borderRadius: RADIUS.badge,
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: FONT_SIZE.caption,
-                color: colors.foregroundMuted,
-                fontFamily: MONO,
-                marginBottom: 2,
-              }}
-            >
-              output tokens
-            </Text>
-            <Text
-              style={{
-                fontSize: FONT_SIZE.body,
-                fontWeight: FONT_WEIGHT.bold,
-                color: colors.foreground,
-                fontFamily: MONO,
-              }}
-            >
-              {formatTokens(data.outputTokens)}
-            </Text>
-          </View>
-
-          {/* Cache Hit Ratio */}
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: "rgba(255, 255, 255, 0.02)",
-              borderRadius: RADIUS.badge,
-              paddingHorizontal: 10,
-              paddingVertical: 8,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <Text
-              style={{
-                fontSize: FONT_SIZE.caption,
-                color: colors.foregroundMuted,
-                fontFamily: MONO,
-                marginBottom: 2,
-              }}
-            >
-              cache ratio
-            </Text>
-            <Text
-              style={{
-                fontSize: FONT_SIZE.body,
-                fontWeight: FONT_WEIGHT.bold,
-                color: "#38bdf8",
-                fontFamily: MONO,
-              }}
-            >
-              {data.cacheHitRatio.toFixed(1)}%
-            </Text>
-          </View>
-        </View>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", gap: isNarrow ? 6 : 8 }}>
+              <View style={statItemStyle}>
+                <Text style={statLabelStyle}>output tokens</Text>
+                <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
+                  {formatTokens(data.outputTokens)}
+                </Text>
+              </View>
+              <View style={statItemStyle}>
+                <Text style={statLabelStyle}>cache ratio</Text>
+                <Text style={{ fontSize: statValueSize, fontWeight: FONT_WEIGHT.bold, color: "#38bdf8", fontFamily: MONO }}>
+                  {data.cacheHitRatio.toFixed(1)}%
+                </Text>
+              </View>
+            </View>
+          </>
+        )}
       </View>
 
       {/* Real API Cost (No Subscription) Callout */}
@@ -212,8 +164,8 @@ export function TokensWidget({
           borderRadius: RADIUS.badge,
           borderWidth: 1,
           borderColor: "rgba(234, 179, 8, 0.22)",
-          paddingHorizontal: 12,
-          paddingVertical: 10,
+          paddingHorizontal: isNarrow ? 8 : 12,
+          paddingVertical: isNarrow ? 8 : 10,
         }}
       >
         <View
@@ -223,26 +175,27 @@ export function TokensWidget({
             alignItems: "center",
           }}
         >
-          <View style={{ gap: 2 }}>
+          <View style={{ gap: 2, flex: 1 }}>
             <Text
               style={{
-                fontSize: FONT_SIZE.caption,
+                fontSize: isNarrow ? 11 : FONT_SIZE.caption,
                 fontWeight: FONT_WEIGHT.semibold,
                 color: "#facc15",
               }}
             >
-              API cost without subscription
+              {isNarrow ? "API cost without sub" : "API cost without subscription"}
             </Text>
-            <Text style={{ fontSize: 10, color: colors.foregroundMuted }}>
-              standard un-cached pay-as-you-go rate
+            <Text style={{ fontSize: isNarrow ? 9 : 10, color: colors.foregroundMuted }}>
+              {isNarrow ? "standard API rate" : "standard un-cached pay-as-you-go rate"}
             </Text>
           </View>
           <Text
             style={{
-              fontSize: 17,
+              fontSize: isNarrow ? 15 : 17,
               fontWeight: FONT_WEIGHT.bold,
               color: "#facc15",
               fontFamily: MONO,
+              marginLeft: 8,
             }}
           >
             {formatCost(data.rawApiCostUsd)}

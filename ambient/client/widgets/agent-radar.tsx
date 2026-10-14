@@ -7,25 +7,37 @@ import { FONT_SIZE, FONT_WEIGHT, MONO, AMBIENT_COLORS, RADIUS } from "../design-
 export function AgentRadarWidget({
   data,
   colors,
+  isNarrow = false,
+  isCompact = false,
 }: {
   data: AmbientTelemetryOutput["radar"];
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
+  isNarrow?: boolean;
+  isCompact?: boolean;
 }) {
   const getCategoryColor = (cat: "read" | "find" | "edit" | "bash") => {
     return AMBIENT_COLORS[cat];
   };
 
   return (
-    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border} style={{ padding: 10, gap: 6 }}>
+    <AmbientCard
+      backgroundColor={colors.surface}
+      borderColor={colors.border}
+      style={{ padding: isNarrow ? 8 : 10, gap: isNarrow ? 4 : 6 }}
+    >
       {/* Header */}
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-          <Icon name="Target" size={14} color="#34d399" />
-          <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 4 : 6 }}>
+          <Icon name="Target" size={isNarrow ? 12 : 14} color="#34d399" />
+          <Text style={{ fontSize: isNarrow ? FONT_SIZE.small : FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
             agent radar
           </Text>
         </View>
-        <Badge label="last 60s" backgroundColor="rgba(255, 255, 255, 0.06)" color={colors.foregroundMuted} />
+        <Badge
+          label={isNarrow ? "60s" : "last 60s"}
+          backgroundColor="rgba(255, 255, 255, 0.06)"
+          color={colors.foregroundMuted}
+        />
       </View>
 
       {/* Radar Bars Visualization (Compact) */}

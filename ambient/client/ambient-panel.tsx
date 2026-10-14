@@ -4,7 +4,7 @@ import {
 } from "@getpaseo/plugin/client";
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ScrollView,
   View,
@@ -57,29 +57,42 @@ export function AmbientPanel({
     };
   }, [theme]);
 
+  const [panelWidth, setPanelWidth] = useState<number>(300);
   const isVisible = useDashboardVisibility(workspaceId ?? "global");
 
   if (!isVisible) {
     return null;
   }
 
+  const isNarrow = panelWidth < 280;
+  const isCompact = panelWidth < 340 || layout.compact;
+  const isWide = panelWidth >= 480;
+
   return (
-    <View style={{ flex: 1, backgroundColor: colors.surface0 }}>
+    <View
+      style={{ flex: 1, backgroundColor: colors.surface0 }}
+      onLayout={(e) => {
+        const w = Math.round(e.nativeEvent.layout.width);
+        if (w > 0 && Math.abs(w - panelWidth) > 2) {
+          setPanelWidth(w);
+        }
+      }}
+    >
       {/* Top Header Bar */}
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          paddingHorizontal: layout.compact ? 12 : 16,
-          paddingVertical: 12,
+          paddingHorizontal: isNarrow ? 8 : (isCompact ? 12 : 16),
+          paddingVertical: isNarrow ? 8 : 12,
           borderBottomWidth: 1,
           borderColor: colors.border,
         }}
       >
         <Text
           style={{
-            fontSize: FONT_SIZE.header,
+            fontSize: isNarrow ? FONT_SIZE.body : FONT_SIZE.header,
             fontWeight: FONT_WEIGHT.semibold,
             color: colors.foreground,
             fontFamily: MONO,
@@ -88,7 +101,7 @@ export function AmbientPanel({
           ambient
         </Text>
 
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 8 : 12 }}>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Branches"
@@ -116,21 +129,44 @@ export function AmbientPanel({
       ) : data ? (
         <ScrollView
           contentContainerStyle={{
-            padding: layout.compact ? 12 : 16,
-            gap: 12,
+            padding: isNarrow ? 8 : (isCompact ? 12 : 16),
+            gap: isNarrow ? 8 : 12,
             paddingBottom: 32,
           }}
           showsVerticalScrollIndicator={false}
         >
-          <ContextGaugeWidget data={data.context} colors={colors} />
-          <EngineUsageWidget data={data.engineUsage} colors={colors} />
-          <TokensWidget data={data.tokens} colors={colors} />
+          <ContextGaugeWidget
+            data={data.context}
+            colors={colors}
+            isNarrow={isNarrow}
+            isCompact={isCompact}
+          />
+          <EngineUsageWidget
+            data={data.engineUsage}
+            colors={colors}
+            isNarrow={isNarrow}
+            isCompact={isCompact}
+          />
+          <TokensWidget
+            data={data.tokens}
+            colors={colors}
+            isNarrow={isNarrow}
+            isCompact={isCompact}
+            isWide={isWide}
+          />
           <SubagentsWidget
             data={data.subagents}
             colors={colors}
+            isNarrow={isNarrow}
+            isCompact={isCompact}
             onOpenManager={() => triggerManager({ workspaceId })}
           />
-          <AgentRadarWidget data={data.radar} colors={colors} />
+          <AgentRadarWidget
+            data={data.radar}
+            colors={colors}
+            isNarrow={isNarrow}
+            isCompact={isCompact}
+          />
         </ScrollView>
       ) : null}
     </View>

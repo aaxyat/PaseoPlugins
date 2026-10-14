@@ -8,18 +8,26 @@ export function SubagentsWidget({
   data,
   colors,
   onOpenManager,
+  isNarrow = false,
+  isCompact = false,
 }: {
   data: AmbientTelemetryOutput["subagents"];
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
   onOpenManager?: () => void;
+  isNarrow?: boolean;
+  isCompact?: boolean;
 }) {
   return (
-    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border}>
+    <AmbientCard
+      backgroundColor={colors.surface}
+      borderColor={colors.border}
+      style={{ padding: isNarrow ? 10 : (isCompact ? 12 : 14), gap: isNarrow ? 8 : 12 }}
+    >
       {/* Header */}
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Icon name="Bot" size={16} color="#38d9f5" />
-          <Text style={{ fontSize: FONT_SIZE.title, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 6 : 8 }}>
+          <Icon name="Bot" size={isNarrow ? 14 : 16} color="#38d9f5" />
+          <Text style={{ fontSize: isNarrow ? FONT_SIZE.body : FONT_SIZE.title, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
             subagents
           </Text>
         </View>
