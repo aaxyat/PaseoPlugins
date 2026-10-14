@@ -1,7 +1,7 @@
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { useState } from "react";
 import { View, Text, Pressable } from "react-native";
-import type { EngineUsage } from "../../shared/ambient.ts";
+import type { EngineUsage } from "../../shared/dashboard.ts";
 import { AmbientCard, Badge } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO, RADIUS } from "../design-tokens.ts";
 

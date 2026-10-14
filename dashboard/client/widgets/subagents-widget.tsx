@@ -1,6 +1,6 @@
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { View, Text, Pressable } from "react-native";
-import type { AmbientTelemetryOutput } from "../../shared/ambient.ts";
+import type { DashboardTelemetryOutput } from "../../shared/dashboard.ts";
 import { AmbientCard, Badge } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, RADIUS } from "../design-tokens.ts";
 
@@ -11,7 +11,7 @@ export function SubagentsWidget({
   isNarrow = false,
   isCompact = false,
 }: {
-  data: AmbientTelemetryOutput["subagents"];
+  data: DashboardTelemetryOutput["subagents"];
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
   onOpenManager?: () => void;
   isNarrow?: boolean;

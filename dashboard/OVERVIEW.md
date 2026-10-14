@@ -1,6 +1,6 @@
-# Ambient
+# Dashboard
 
-Ambient provides a live operational telemetry sidebar for your Paseo coding agent sessions.
+Dashboard provides a live operational telemetry sidebar for your Paseo coding agent sessions.
 
 It visualizes real-time metrics including context window utilization, throughput velocity (tokens/sec), active tool executions over the last 60 seconds (Agent Radar), child subagent statuses, engine heartbeat, and a dense visual minimap of session actions.
 
@@ -15,4 +15,4 @@ It visualizes real-time metrics including context window utilization, throughput
 
 ## Usage
 
-Ambient automatically registers into the Paseo workspace and Explorer tabs. You can also open it from the Command Center (Ctrl+K / Cmd+K) by searching for "Ambient".
+Dashboard automatically registers into the Paseo workspace and Explorer tabs. You can also open it from the Command Center (Ctrl+K / Cmd+K) by searching for "Dashboard" or using the top header button.

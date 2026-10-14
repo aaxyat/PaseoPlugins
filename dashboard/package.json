@@ -1,13 +1,13 @@
 {
-  "name": "@aaxyat/paseo-plugin-ambient",
+  "name": "@aaxyat/paseo-plugin-dashboard",
   "version": "0.1.0",
-  "description": "Real-time telemetry and agent radar panel for Paseo.",
+  "description": "Real-time telemetry and dashboard panel for Paseo.",
   "license": "MIT",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/aaxyat/PaseoPlugins.git",
-    "directory": "ambient"
+    "directory": "dashboard"
   },
   "files": [
     "paseo-plugin.json",

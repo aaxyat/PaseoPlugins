@@ -4,7 +4,7 @@ Repository for custom Paseo plugins.
 
 ## Active Plugins
 
-* **Ambient** (`ambient/`): Real-time ambient telemetry and agent radar panel for Paseo workspace and explorer.
+* **Dashboard** (`dashboard/`): Real-time ambient telemetry and agent radar panel for Paseo workspace and explorer.
 
 ## Development Workflow
 
@@ -13,6 +13,6 @@ Repository for custom Paseo plugins.
    - `client/`: React Native primitives (`View`, `Text`, `Pressable`, `ScrollView`), `@getpaseo/plugin/client`, design tokens. No DOM libraries.
    - `server/`: Node.js daemon subprocess, SQLite storage in `~/.paseo/plugin-data/<plugin-id>/`.
    - `shared/`: Zod RPC contracts and pure schemas.
-3. Conventional Commits: `<type>(<scope>): <description>` (e.g. `feat(ambient): add agent radar widget`).
+3. Conventional Commits: `<type>(<scope>): <description>` (e.g. `feat(dashboard): add agent radar widget`).
 4. Typecheck before install/reload: `npm run typecheck`.
 5. Testing: `npm test`.

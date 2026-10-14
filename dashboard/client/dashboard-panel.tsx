@@ -12,7 +12,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
-import { ambientTelemetryRpc, ambientTriggerManagerRpc } from "../shared/ambient.ts";
+import { dashboardTelemetryRpc, dashboardTriggerManagerRpc } from "../shared/dashboard.ts";
 import { ContextGaugeWidget } from "./widgets/context-gauge.tsx";
 import { AgentRadarWidget } from "./widgets/agent-radar.tsx";
 import { SubagentsWidget } from "./widgets/subagents-widget.tsx";
@@ -24,24 +24,25 @@ import {
   setDashboardVisible,
 } from "./dashboard-visibility.ts";
 
-export interface AmbientPanelProps {
+export interface DashboardPanelProps {
   theme: { colors: Record<string, string> };
   layout: { compact: boolean; platform?: string };
   workspaceId?: string;
   agentId?: string;
 }
+export type AmbientPanelProps = DashboardPanelProps;
 
-export function AmbientPanel({
+export function DashboardPanel({
   theme,
   layout,
   workspaceId,
   agentId,
-}: AmbientPanelProps) {
-  const getTelemetry = useRpc(ambientTelemetryRpc);
-  const triggerManager = useRpc(ambientTriggerManagerRpc);
+}: DashboardPanelProps) {
+  const getTelemetry = useRpc(dashboardTelemetryRpc);
+  const triggerManager = useRpc(dashboardTriggerManagerRpc);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["ambient", "telemetry", workspaceId ?? "global", agentId ?? "default"],
+    queryKey: ["dashboard", "telemetry", workspaceId ?? "global", agentId ?? "default"],
     queryFn: () => getTelemetry({ workspaceId: workspaceId || undefined, agentId: agentId || undefined }),
     refetchInterval: 3000,
   });
@@ -98,7 +99,7 @@ export function AmbientPanel({
             fontFamily: MONO,
           }}
         >
-          ambient
+          dashboard
         </Text>
 
         <View style={{ flexDirection: "row", alignItems: "center", gap: isNarrow ? 8 : 12 }}>
@@ -172,3 +173,5 @@ export function AmbientPanel({
     </View>
   );
 }
+
+export const AmbientPanel = DashboardPanel;

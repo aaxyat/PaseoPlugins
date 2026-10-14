@@ -1,8 +1,0 @@
-{
-  "id": "ambient",
-  "name": "Ambient",
-  "description": "Real-time telemetry and agent radar panel for Paseo",
-  "requirements": {
-    "paseo": ">=0.11.0"
-  }
-}

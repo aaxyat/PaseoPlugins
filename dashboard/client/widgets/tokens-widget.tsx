@@ -1,6 +1,6 @@
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { View, Text } from "react-native";
-import type { TokensUsage } from "../../shared/ambient.ts";
+import type { TokensUsage } from "../../shared/dashboard.ts";
 import { AmbientCard, Badge } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO, RADIUS } from "../design-tokens.ts";
 

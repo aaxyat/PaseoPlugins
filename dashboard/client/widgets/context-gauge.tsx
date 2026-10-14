@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import type { AmbientTelemetryOutput } from "../../shared/ambient.ts";
+import type { DashboardTelemetryOutput } from "../../shared/dashboard.ts";
 import { AmbientCard, CircularGauge, Sparkline } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "../design-tokens.ts";
 
@@ -9,7 +9,7 @@ export function ContextGaugeWidget({
   isNarrow = false,
   isCompact = false,
 }: {
-  data: AmbientTelemetryOutput["context"];
+  data: DashboardTelemetryOutput["context"];
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
   isNarrow?: boolean;
   isCompact?: boolean;

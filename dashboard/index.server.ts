@@ -1,14 +1,14 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
-import { ambientTelemetryRpc, ambientTriggerManagerRpc } from "./shared/ambient.ts";
-import { createAmbientStore } from "./server/store.ts";
+import { dashboardTelemetryRpc, dashboardTriggerManagerRpc } from "./shared/dashboard.ts";
+import { createDashboardStore } from "./server/store.ts";
 import { createTelemetryHandler, createOpenManagerHandler } from "./server/handlers.ts";
 
 export default function contribute(server: PluginServerContext) {
-  const store = createAmbientStore();
-  console.log("[ambient] ambient server service initialized");
+  const store = createDashboardStore();
+  console.log("[dashboard] dashboard server service initialized");
 
-  server.handle(ambientTelemetryRpc, createTelemetryHandler(store));
-  server.handle(ambientTriggerManagerRpc, createOpenManagerHandler(store));
+  server.handle(dashboardTelemetryRpc, createTelemetryHandler(store));
+  server.handle(dashboardTriggerManagerRpc, createOpenManagerHandler(store));
 
   // Listen to turn completions to record tool calls and track active provider
   const removeTurnEnded = server.on("agent.turn_ended", (event) => {

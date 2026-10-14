@@ -8,12 +8,12 @@ import {
 type WorkspacesApi = PluginClientContext["paseo"]["workspaces"];
 type ListResult = Awaited<ReturnType<WorkspacesApi["list"]>>;
 
-const BUTTON_ID = "ambient-dashboard";
-const PANEL_ID = "ambient";
+const BUTTON_ID = "dashboard";
+const PANEL_ID = "dashboard";
 const PAGE_LIMIT = 200;
 
 /**
- * Contributes a header button for each workspace to toggle the Ambient dashboard.
+ * Contributes a header button for each workspace to toggle the Dashboard.
  * Clicking once opens and activates the dashboard; clicking again hides it.
  */
 export function contributeHeaderButtons(
@@ -23,7 +23,7 @@ export function contributeHeaderButtons(
   const workspaces = client.paseo.workspaces;
   const buttons = new Map<string, PluginButtonRegistration>();
   const report = (error: unknown) =>
-    console.error("[ambient] workspace directory failed", error);
+    console.error("[dashboard] workspace directory failed", error);
 
   let disposed = false;
   let connecting = false;
@@ -41,7 +41,7 @@ export function contributeHeaderButtons(
         id: BUTTON_ID,
         workspaceId,
         button: {
-          title: currentVisible ? "Hide Ambient Dashboard" : "Ambient Dashboard",
+          title: currentVisible ? "Hide Dashboard" : "Dashboard",
           icon: "Gauge",
           behavior: {
             kind: "action",
@@ -148,7 +148,7 @@ export function contributeHeaderButtons(
 
   const stopVisibility = watchDashboardVisibility((workspaceId, visible) => {
     buttons.get(workspaceId)?.update({
-      title: visible ? "Hide Ambient Dashboard" : "Ambient Dashboard",
+      title: visible ? "Hide Dashboard" : "Dashboard",
     });
   });
 

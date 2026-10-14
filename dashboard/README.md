@@ -1,11 +1,11 @@
-# Ambient Plugin for Paseo
+# Dashboard Plugin for Paseo
 
-A real-time telemetry and agent radar panel for [Paseo](https://paseo.sh).
+A real-time telemetry and agent radar dashboard for [Paseo](https://paseo.sh).
 
 ## Installation
 
 ```bash
-paseo plugin install /absolute/path/to/PaseoPlugins/ambient
+paseo plugin install /absolute/path/to/PaseoPlugins/dashboard
 paseo plugin ls
 ```
 

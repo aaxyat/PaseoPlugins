@@ -6,7 +6,7 @@ A collection of plugins for [Paseo](https://paseo.sh), designed to enhance the a
 
 | Plugin | Type | Description |
 |---|---|---|
-| **`ambient`** | Workspace Panel / Sidebar | Real-time ambient telemetry panel displaying token velocity, context usage, agent radar activity, subagent statuses, and session turn minimaps. |
+| **`dashboard`** | Workspace Panel / Sidebar | Real-time ambient telemetry and agent dashboard displaying token velocity, context usage, agent radar activity, subagent statuses, and session turn minimaps. |
 
 ## Development & Installation
 
@@ -35,7 +35,7 @@ paseo plugin reload <plugin-id>
 
 ```text
 PaseoPlugins/
-├── ambient/           # Ambient context & telemetry sidebar panel
+├── dashboard/         # Ambient context & telemetry dashboard sidebar panel
 ├── ...
 └── README.md
 ```

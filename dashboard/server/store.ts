@@ -2,21 +2,23 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import type {
+  DashboardTelemetryOutput,
   AmbientTelemetryOutput,
   RadarEvent,
   ToolCategory,
   EngineUsage,
-} from "../shared/ambient.ts";
+} from "../shared/dashboard.ts";
 
-export interface AmbientStore {
+export interface DashboardStore {
   getTelemetry(
     workspaceId?: string,
     agentId?: string,
     provider?: "antigravity" | "opencode",
-  ): AmbientTelemetryOutput;
+  ): DashboardTelemetryOutput;
   recordToolCall(category: ToolCategory, durationMs?: number): void;
   setActiveProvider(provider: "antigravity" | "opencode"): void;
 }
+export type AmbientStore = DashboardStore;
 
 interface QuotaSnapshot {
   used_tokens: number;
@@ -208,7 +210,7 @@ function calculateRawApiCost(
   return Number(cost.toFixed(2));
 }
 
-export function createAmbientStore(): AmbientStore {
+export function createDashboardStore(): DashboardStore {
   const recordedEvents: { timestamp: number; category: "read" | "find" | "edit" | "bash"; intensity: number }[] = [];
   const sparklineHistory: number[] = [
     30, 45, 60, 35, 40, 50, 75, 40, 30, 55, 38, 42, 65, 80, 55, 92, 45, 60, 70, 85, 40, 65, 75, 88, 62, 92
@@ -400,3 +402,5 @@ export function createAmbientStore(): AmbientStore {
     },
   };
 }
+
+export const createAmbientStore = createDashboardStore;

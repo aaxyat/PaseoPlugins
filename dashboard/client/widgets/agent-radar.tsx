@@ -1,6 +1,6 @@
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { View, Text } from "react-native";
-import type { AmbientTelemetryOutput } from "../../shared/ambient.ts";
+import type { DashboardTelemetryOutput, RadarEvent } from "../../shared/dashboard.ts";
 import { AmbientCard, Badge } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO, AMBIENT_COLORS, RADIUS } from "../design-tokens.ts";
 
@@ -10,7 +10,7 @@ export function AgentRadarWidget({
   isNarrow = false,
   isCompact = false,
 }: {
-  data: AmbientTelemetryOutput["radar"];
+  data: DashboardTelemetryOutput["radar"];
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
   isNarrow?: boolean;
   isCompact?: boolean;
@@ -51,7 +51,7 @@ export function AgentRadarWidget({
             paddingHorizontal: 6,
           }}
         >
-          {data.events.map((ev) => (
+          {data.events.map((ev: RadarEvent) => (
             <View
               key={ev.id}
               style={{

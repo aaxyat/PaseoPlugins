@@ -13,7 +13,7 @@ This monorepo houses standalone plugins for [Paseo](https://paseo.sh).
 Each plugin is self-contained in its own directory named after its plugin ID:
 
 ```text
-ambient/
+dashboard/
   paseo-plugin.json
   package.json
   tsconfig.json
@@ -45,5 +45,5 @@ ambient/
 ## Commit Messages
 
 Use Conventional Commits: `<type>(<scope>): <description>`.
-* `feat(ambient): add minimap visualizer`
-* `fix(ambient): correct token counter format`
+* `feat(dashboard): add minimap visualizer`
+* `fix(dashboard): correct token counter format`

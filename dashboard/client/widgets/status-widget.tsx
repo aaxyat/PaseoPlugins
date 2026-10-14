@@ -1,5 +1,5 @@
 import { View, Text } from "react-native";
-import type { AmbientTelemetryOutput } from "../../shared/ambient.ts";
+import type { DashboardTelemetryOutput } from "../../shared/dashboard.ts";
 import { AmbientCard, Badge, StatusDot } from "../ui.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "../design-tokens.ts";
 
@@ -7,7 +7,7 @@ export function StatusWidget({
   data,
   colors,
 }: {
-  data?: NonNullable<AmbientTelemetryOutput["status"]>;
+  data?: NonNullable<DashboardTelemetryOutput["status"]>;
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
 }) {
   const badge = data?.badge ?? "system";

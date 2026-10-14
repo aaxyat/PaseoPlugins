@@ -50,12 +50,14 @@ export const EngineUsageSchema = z.object({
 });
 export type EngineUsage = z.infer<typeof EngineUsageSchema>;
 
-export const AmbientTelemetryInputSchema = z.object({
+export const DashboardTelemetryInputSchema = z.object({
   workspaceId: z.string().optional(),
   agentId: z.string().optional(),
   provider: z.enum(["antigravity", "opencode"]).optional(),
 });
-export type AmbientTelemetryInput = z.infer<typeof AmbientTelemetryInputSchema>;
+export type DashboardTelemetryInput = z.infer<typeof DashboardTelemetryInputSchema>;
+export const AmbientTelemetryInputSchema = DashboardTelemetryInputSchema;
+export type AmbientTelemetryInput = DashboardTelemetryInput;
 
 export const TokensUsageSchema = z.object({
   totalInputTokens: z.number(),
@@ -68,7 +70,7 @@ export const TokensUsageSchema = z.object({
 });
 export type TokensUsage = z.infer<typeof TokensUsageSchema>;
 
-export const AmbientTelemetryOutputSchema = z.object({
+export const DashboardTelemetryOutputSchema = z.object({
   context: z.object({
     usedTokens: z.number(),
     maxTokens: z.number(),
@@ -98,16 +100,20 @@ export const AmbientTelemetryOutputSchema = z.object({
     .optional(),
   engineUsage: EngineUsageSchema,
 });
-export type AmbientTelemetryOutput = z.infer<typeof AmbientTelemetryOutputSchema>;
+export type DashboardTelemetryOutput = z.infer<typeof DashboardTelemetryOutputSchema>;
+export const AmbientTelemetryOutputSchema = DashboardTelemetryOutputSchema;
+export type AmbientTelemetryOutput = DashboardTelemetryOutput;
 
-export const ambientTelemetryRpc = defineRpc({
-  name: "ambient.telemetry",
-  input: AmbientTelemetryInputSchema,
-  output: AmbientTelemetryOutputSchema,
+export const dashboardTelemetryRpc = defineRpc({
+  name: "dashboard.telemetry",
+  input: DashboardTelemetryInputSchema,
+  output: DashboardTelemetryOutputSchema,
 });
+export const ambientTelemetryRpc = dashboardTelemetryRpc;
 
-export const ambientTriggerManagerRpc = defineRpc({
-  name: "ambient.open-manager",
+export const dashboardTriggerManagerRpc = defineRpc({
+  name: "dashboard.open-manager",
   input: z.object({ workspaceId: z.string().optional() }),
   output: z.object({ success: z.boolean() }),
 });
+export const ambientTriggerManagerRpc = dashboardTriggerManagerRpc;

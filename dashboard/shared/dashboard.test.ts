@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { AmbientTelemetryOutputSchema } from "./ambient.ts";
+import { DashboardTelemetryOutputSchema } from "./dashboard.ts";
 
-test("AmbientTelemetryOutputSchema validates 5-hour and weekly limits for Antigravity", () => {
+test("DashboardTelemetryOutputSchema validates 5-hour and weekly limits for Antigravity", () => {
   const sample = {
     context: {
       usedTokens: 108600,
@@ -71,7 +71,7 @@ test("AmbientTelemetryOutputSchema validates 5-hour and weekly limits for Antigr
     },
   };
 
-  const parsed = AmbientTelemetryOutputSchema.parse(sample);
+  const parsed = DashboardTelemetryOutputSchema.parse(sample);
   assert.equal(parsed.engineUsage.antigravity.fiveHourLimit.resetsIn, "2h 45m");
   assert.equal(parsed.engineUsage.antigravity.weeklyLimit.percentage, 24.0);
   assert.equal(parsed.tokens.totalInputTokens, 29350000);
