@@ -9,7 +9,7 @@ function ProgressBar({
   percentage,
   color = "#4ade80",
   trackColor = "rgba(255, 255, 255, 0.08)",
-  height = 5,
+  height = 8,
 }: {
   percentage: number;
   color?: string;
@@ -55,12 +55,12 @@ export function EngineUsageWidget({
   const ocData = data.opencode;
 
   return (
-    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border}>
+    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border} style={{ padding: 16, gap: 14 }}>
       {/* Header with Switcher */}
       <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-          <Icon name={isAntigravity ? "Zap" : "Code"} size={16} color={isAntigravity ? "#38d9f5" : "#c084fc"} />
-          <Text style={{ fontSize: FONT_SIZE.title, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
+          <Icon name={isAntigravity ? "Zap" : "Code"} size={18} color={isAntigravity ? "#38d9f5" : "#c084fc"} />
+          <Text style={{ fontSize: FONT_SIZE.header, fontWeight: FONT_WEIGHT.semibold, color: colors.foreground }}>
             {isAntigravity ? "antigravity usage" : "opencode usage"}
           </Text>
         </View>
@@ -79,15 +79,15 @@ export function EngineUsageWidget({
             accessibilityLabel="Switch to Antigravity usage"
             onPress={() => setSelectedProvider("antigravity")}
             style={{
-              paddingHorizontal: 8,
-              paddingVertical: 3,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
               borderRadius: RADIUS.badge - 1,
-              backgroundColor: isAntigravity ? "rgba(255, 255, 255, 0.16)" : "transparent",
+              backgroundColor: isAntigravity ? "rgba(255, 255, 255, 0.18)" : "transparent",
             }}
           >
             <Text
               style={{
-                fontSize: FONT_SIZE.caption,
+                fontSize: FONT_SIZE.small,
                 fontWeight: isAntigravity ? FONT_WEIGHT.bold : FONT_WEIGHT.regular,
                 color: isAntigravity ? colors.foreground : colors.foregroundMuted,
               }}
@@ -101,15 +101,15 @@ export function EngineUsageWidget({
             accessibilityLabel="Switch to OpenCode usage"
             onPress={() => setSelectedProvider("opencode")}
             style={{
-              paddingHorizontal: 8,
-              paddingVertical: 3,
+              paddingHorizontal: 10,
+              paddingVertical: 4,
               borderRadius: RADIUS.badge - 1,
-              backgroundColor: !isAntigravity ? "rgba(255, 255, 255, 0.16)" : "transparent",
+              backgroundColor: !isAntigravity ? "rgba(255, 255, 255, 0.18)" : "transparent",
             }}
           >
             <Text
               style={{
-                fontSize: FONT_SIZE.caption,
+                fontSize: FONT_SIZE.small,
                 fontWeight: !isAntigravity ? FONT_WEIGHT.bold : FONT_WEIGHT.regular,
                 color: !isAntigravity ? colors.foreground : colors.foregroundMuted,
               }}
@@ -122,60 +122,71 @@ export function EngineUsageWidget({
 
       {/* Antigravity View */}
       {isAntigravity && (
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 14 }}>
           {/* Active Model Tag */}
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted }}>model</Text>
-            <Badge label={agData.model} backgroundColor="rgba(56, 217, 245, 0.12)" color="#38d9f5" />
+            <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>model</Text>
+            <Badge label={agData.model} backgroundColor="rgba(56, 217, 245, 0.14)" color="#38d9f5" />
           </View>
 
           {/* Context Window Bar */}
-          <View style={{ gap: 4 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
+          <View style={{ gap: 6 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
                 context window
               </Text>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
                 {(agData.usedTokens / 1000).toFixed(1)}k / {(agData.limit / 1000000).toFixed(2)}M ({agData.percentage}%)
               </Text>
             </View>
             <ProgressBar
               percentage={agData.percentage}
+              height={8}
               color={agData.percentage < 65 ? "#4ade80" : agData.percentage < 85 ? "#fbbf24" : "#f87171"}
             />
           </View>
 
           {/* 5-Hour Limit Bar */}
-          <View style={{ gap: 4, paddingTop: 2 }}>
+          <View style={{ gap: 6, paddingTop: 2 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
-                5-hour limit
-              </Text>
-              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
-                {agData.fiveHourLimit.percentage}% · resets in {agData.fiveHourLimit.resetsIn}
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Text style={{ fontSize: FONT_SIZE.small, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
+                  5-hour limit
+                </Text>
+                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted }}>
+                  (resets in {agData.fiveHourLimit.resetsIn})
+                </Text>
+              </View>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: "#38d9f5", fontFamily: MONO }}>
+                {agData.fiveHourLimit.percentage}%
               </Text>
             </View>
             <ProgressBar
               percentage={agData.fiveHourLimit.percentage}
               color="#38d9f5"
-              height={4}
+              height={6}
             />
           </View>
 
           {/* Weekly Limit Bar */}
-          <View style={{ gap: 4, paddingTop: 2 }}>
+          <View style={{ gap: 6, paddingTop: 2 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
-                weekly limit
-              </Text>
-              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
-                {agData.weeklyLimit.percentage}% · resets in {agData.weeklyLimit.resetsIn}
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Text style={{ fontSize: FONT_SIZE.small, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
+                  weekly limit
+                </Text>
+                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted }}>
+                  (resets in {agData.weeklyLimit.resetsIn})
+                </Text>
+              </View>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: "#c084fc", fontFamily: MONO }}>
+                {agData.weeklyLimit.percentage}%
               </Text>
             </View>
             <ProgressBar
               percentage={agData.weeklyLimit.percentage}
               color="#c084fc"
-              height={4}
+              height={6}
             />
           </View>
         </View>
@@ -183,54 +194,55 @@ export function EngineUsageWidget({
 
       {/* OpenCode View */}
       {!isAntigravity && (
-        <View style={{ gap: 10 }}>
+        <View style={{ gap: 14 }}>
           {/* Active Model Tag */}
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-            <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted }}>model</Text>
-            <Badge label={ocData.model} backgroundColor="rgba(192, 132, 252, 0.12)" color="#c084fc" />
+            <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>model</Text>
+            <Badge label={ocData.model} backgroundColor="rgba(192, 132, 252, 0.14)" color="#c084fc" />
           </View>
 
           {/* Context Window Bar */}
-          <View style={{ gap: 4 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
+          <View style={{ gap: 6 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
                 context window
               </Text>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
                 {(ocData.usedTokens / 1000).toFixed(1)}k / {(ocData.limit / 1000).toFixed(0)}k ({ocData.percentage}%)
               </Text>
             </View>
             <ProgressBar
               percentage={ocData.percentage}
               color="#c084fc"
+              height={8}
             />
           </View>
 
           {/* OpenCode Session Metrics */}
-          <View style={{ gap: 6, paddingTop: 4 }}>
+          <View style={{ gap: 8, paddingTop: 4 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>
                 session cost
               </Text>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
                 ${ocData.costUsd.toFixed(2)}
               </Text>
             </View>
 
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>
                 session turns
               </Text>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
                 {ocData.sessionTurns} turns
               </Text>
             </View>
 
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-              <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
+              <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>
                 status
               </Text>
-              <Badge label={ocData.status} backgroundColor="rgba(74, 222, 128, 0.12)" color="#4ade80" />
+              <Badge label={ocData.status} backgroundColor="rgba(74, 222, 128, 0.14)" color="#4ade80" />
             </View>
           </View>
         </View>
