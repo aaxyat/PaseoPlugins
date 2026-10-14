@@ -5,11 +5,12 @@ import type {
 } from "@getpaseo/plugin/client";
 import { SidebarRow } from "@getpaseo/plugin/client/ui";
 import { AmbientPanel } from "./client/ambient-panel.tsx";
+import { contributeHeaderButtons } from "./client/header-button.ts";
 
 function AmbientSidebarRow({ currentScreen, openScreen }: PluginSidebarItemProps) {
   return (
     <SidebarRow
-      icon="Activity"
+      icon="Gauge"
       label="Ambient"
       active={currentScreen?.screenId === "ambient"}
       onPress={() => openScreen({ screenId: "ambient" })}
@@ -22,6 +23,8 @@ function AmbientScreen(props: PluginScreenProps) {
 }
 
 export default function contribute(client: PluginClientContext) {
+  // 1. Workspace Window Header Button (Top titlebar next to Activity/VS Code)
+  const stopHeaderButtons = contributeHeaderButtons(client);
   // 1. Full Screen & Main Sidebar Icon (Left navigation rail)
   client.addScreen({
     id: "ambient",
@@ -78,6 +81,7 @@ export default function contribute(client: PluginClientContext) {
   });
 
   return () => {
+    stopHeaderButtons();
     console.log("[ambient] client contributions unloaded");
   };
 }
