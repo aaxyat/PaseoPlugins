@@ -1,0 +1,38 @@
+{
+  "name": "@aaxyat/paseo-plugin-ambient",
+  "version": "0.1.0",
+  "description": "Real-time telemetry and agent radar panel for Paseo.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aaxyat/PaseoPlugins.git",
+    "directory": "ambient"
+  },
+  "files": [
+    "paseo-plugin.json",
+    "CHANGELOG.md",
+    "OVERVIEW.md",
+    "index.client.tsx",
+    "index.server.ts",
+    "client/",
+    "server/",
+    "shared/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test shared/*.test.ts"
+  },
+  "devDependencies": {
+    "@getpaseo/plugin": "0.11.2",
+    "@tanstack/react-query": "^5.90.11",
+    "@types/node": "^24.13.5",
+    "@types/react": "~19.2.0",
+    "react": "19.1.0",
+    "react-native": "0.81.5",
+    "typescript": "^5.9.3",
+    "zod": "^4.6.5"
+  }
+}
