@@ -112,14 +112,14 @@ export function AmbientPanel({
           showsVerticalScrollIndicator={false}
         >
           <ContextGaugeWidget data={data.context} colors={colors} />
-          <AgentRadarWidget data={data.radar} colors={colors} />
+          <EngineUsageWidget data={data.engineUsage} colors={colors} />
           <SubagentsWidget
             data={data.subagents}
             colors={colors}
             onOpenManager={() => triggerManager({ workspaceId })}
           />
           <StatusWidget data={data.status} colors={colors} />
-          <EngineUsageWidget data={data.engineUsage} colors={colors} />
+          <AgentRadarWidget data={data.radar} colors={colors} />
         </ScrollView>
       ) : null}
     </View>
