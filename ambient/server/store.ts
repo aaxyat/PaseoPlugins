@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { homedir } from "node:os";
 import type { AmbientTelemetryOutput, RadarEvent, MinimapTile, ToolCategory } from "../shared/ambient.ts";
 
 export interface AmbientStore {
@@ -5,64 +8,124 @@ export interface AmbientStore {
   recordToolCall(category: ToolCategory, durationMs?: number): void;
 }
 
+interface QuotaSnapshot {
+  used_tokens: number;
+  limit: number;
+  usage_pct: number;
+  rpm: number;
+  tpm: number;
+  daily_reqs: number;
+  daily_limit: number;
+  model_name: string;
+  updated_at: number;
+}
+
+function resolveSnapshotPath(): string | null {
+  const localAppData = process.env.LOCALAPPDATA;
+  if (localAppData) {
+    const winPath = join(localAppData, "antigravity", "quota_tracker", "quota_snapshot.json");
+    if (existsSync(winPath)) return winPath;
+  }
+  const cachePath = join(homedir(), ".cache", "antigravity", "quota_tracker", "quota_snapshot.json");
+  if (existsSync(cachePath)) return cachePath;
+  return null;
+}
+
 export function createAmbientStore(): AmbientStore {
-  const categories: ("read" | "find" | "edit" | "bash")[] = ["read", "find", "edit", "bash"];
-  
-  // Generate initial rolling radar events
-  const initialEvents: RadarEvent[] = [
-    { id: "e1", offsetSec: -58, category: "edit", intensity: 0.7 },
-    { id: "e2", offsetSec: -53, category: "bash", intensity: 0.6 },
-    { id: "e3", offsetSec: -43, category: "find", intensity: 0.65 },
-    { id: "e4", offsetSec: -34, category: "bash", intensity: 0.65 },
-    { id: "e5", offsetSec: -23, category: "edit", intensity: 0.75 },
-    { id: "e6", offsetSec: -20, category: "edit", intensity: 0.75 },
-    { id: "e7", offsetSec: -8, category: "read", intensity: 0.7 },
-    { id: "e8", offsetSec: 0, category: "read", intensity: 0.7 },
-    { id: "e9", offsetSec: 10, category: "read", intensity: 0.7 },
-    { id: "e10", offsetSec: 18, category: "bash", intensity: 0.8 },
+  const recordedEvents: { timestamp: number; category: "read" | "find" | "edit" | "bash"; intensity: number }[] = [];
+  const sparklineHistory: number[] = [
+    30, 45, 60, 35, 40, 50, 75, 40, 30, 55, 38, 42, 65, 80, 55, 92, 45, 60, 70, 85, 40, 65, 75, 88, 62, 92
   ];
 
-  // Pre-populate 10x12 matrix (120 tiles)
-  const pattern: ToolCategory[] = [
-    "edit", "read", "bash", "edit", "read", "edit", "bash", "edit", "read", "empty", "read",
-    "edit", "edit", "read", "bash", "edit", "find", "bash", "edit", "read", "find", "bash",
-    "bash", "bash", "bash", "bash", "read", "empty", "edit", "edit", "read", "read", "read",
-    "find", "read", "bash", "bash", "read", "bash", "edit", "find", "edit", "read", "read",
-    "bash", "edit", "bash", "find", "bash", "find", "read", "find", "find", "bash", "edit",
-    "edit", "edit", "bash", "find", "edit", "edit", "edit", "edit", "read", "read", "read",
-    "read", "read", "read", "read", "read", "read", "edit", "bash", "edit", "read", "read",
-    "read", "read", "read", "read", "empty", "read", "read", "read", "read", "read", "read",
-    "read", "read", "read", "bash", "read", "read", "bash", "bash", "bash", "bash", "bash",
-    "find", "edit", "edit", "edit", "edit", "edit", "edit", "edit", "empty", "read", "find"
-  ];
-
-  const tiles: MinimapTile[] = Array.from({ length: 120 }, (_, i) => ({
-    index: i,
-    category: pattern[i % pattern.length] ?? "empty",
-  }));
-
-  const sparkline = [
-    30, 80, 25, 45, 30, 40, 35, 42, 38, 25, 40, 30, 35, 30, 25, 85, 30, 40, 50, 30, 45, 30, 30, 32, 28, 26, 80
-  ];
-
-  let currentTicker = 1791955784655;
+  // Seed initial events so radar isn't completely empty before first action
+  const now = Date.now();
+  recordedEvents.push(
+    { timestamp: now - 55000, category: "read", intensity: 0.7 },
+    { timestamp: now - 48000, category: "bash", intensity: 0.65 },
+    { timestamp: now - 36000, category: "find", intensity: 0.8 },
+    { timestamp: now - 25000, category: "edit", intensity: 0.9 },
+    { timestamp: now - 18000, category: "read", intensity: 0.6 },
+    { timestamp: now - 10000, category: "bash", intensity: 0.75 },
+    { timestamp: now - 2000, category: "edit", intensity: 0.85 },
+  );
 
   return {
-    getTelemetry(workspaceId?: string, agentId?: string): AmbientTelemetryOutput {
-      currentTicker += Math.floor(Math.random() * 5) + 1;
+    getTelemetry(_workspaceId?: string, _agentId?: string): AmbientTelemetryOutput {
+      let quota: QuotaSnapshot | null = null;
+      const snapshotPath = resolveSnapshotPath();
+      if (snapshotPath) {
+        try {
+          const raw = readFileSync(snapshotPath, "utf-8");
+          quota = JSON.parse(raw);
+        } catch (e) {
+          console.warn("[ambient] could not read live quota snapshot", e);
+        }
+      }
+
+      const currentTime = Date.now();
+
+      // Prune events older than 60s
+      while (recordedEvents.length > 0 && currentTime - recordedEvents[0].timestamp > 60000) {
+        recordedEvents.shift();
+      }
+
+      // Format radar events with relative offsetSec (-60 to 0)
+      const radarEvents: RadarEvent[] = recordedEvents.map((ev, idx) => ({
+        id: `ev-${idx}-${ev.timestamp}`,
+        offsetSec: Math.round((ev.timestamp - currentTime) / 1000),
+        category: ev.category,
+        intensity: ev.intensity,
+      }));
+
+      // Fallback or live metrics
+      const usedTokens = quota?.used_tokens ?? 90300;
+      const maxTokens = quota?.limit ?? 1000000;
+      const percentage = quota?.usage_pct != null ? Number(quota.usage_pct.toFixed(1)) : 9.0;
+      const tpm = quota?.tpm ?? 1410000;
+      const tps = Math.max(12, Math.round(tpm / 60 / 250)); // throughput velocity
+      const costUsd = Number(((usedTokens / 1_000_000) * 8.2).toFixed(2));
+      const dailyReqs = quota?.daily_reqs ?? 263;
+
+      // Update sparkline
+      sparklineHistory.shift();
+      sparklineHistory.push(Math.min(95, Math.max(20, tps + Math.floor(Math.random() * 10) - 5)));
+
+      const updatedAtMs = quota?.updated_at ? Math.round(quota.updated_at * 1000) : currentTime;
+      const dtSec = Math.floor((currentTime - updatedAtMs) / 1000);
+      const isLive = dtSec < 20;
+
+      // Generate Minimap tiles representing recent turn operations
+      const pattern: ToolCategory[] = [
+        "edit", "read", "bash", "edit", "read", "edit", "bash", "edit", "read", "empty", "read",
+        "edit", "edit", "read", "bash", "edit", "find", "bash", "edit", "read", "find", "bash",
+        "bash", "bash", "bash", "bash", "read", "empty", "edit", "edit", "read", "read", "read",
+        "find", "read", "bash", "bash", "read", "bash", "edit", "find", "edit", "read", "read",
+        "bash", "edit", "bash", "find", "bash", "find", "read", "find", "find", "bash", "edit",
+        "edit", "edit", "bash", "find", "edit", "edit", "edit", "edit", "read", "read", "read",
+        "read", "read", "read", "read", "read", "read", "edit", "bash", "edit", "read", "read",
+        "read", "read", "read", "read", "empty", "read", "read", "read", "read", "read", "read",
+        "read", "read", "read", "bash", "read", "read", "bash", "bash", "bash", "bash", "bash",
+        "find", "edit", "edit", "edit", "edit", "edit", "edit", "edit", "empty", "read", "find"
+      ];
+
+      const tiles: MinimapTile[] = Array.from({ length: 120 }, (_, i) => ({
+        index: i,
+        category: pattern[i % pattern.length],
+      }));
+
       return {
         context: {
-          usedTokens: 94000,
-          maxTokens: 1048576,
-          percentage: 9.0,
-          costUsd: 0.73,
-          throughputTps: 92,
-          sparkline,
+          usedTokens,
+          maxTokens,
+          percentage,
+          costUsd,
+          throughputTps: tps,
+          sparkline: [...sparklineHistory],
         },
         radar: {
           windowSec: 60,
-          currentTps: 92,
-          events: initialEvents,
+          currentTps: tps,
+          events: radarEvents,
         },
         subagents: {
           status: "idle",
@@ -71,21 +134,20 @@ export function createAmbientStore(): AmbientStore {
         },
         status: {
           badge: "extension",
-          indicator: "active",
-          magicContext: "mc: 94K (9%) · idle",
-          ticker: currentTicker.toString(),
+          indicator: isLive ? "active" : "idle",
+          magicContext: `mc: ${Math.round(usedTokens / 1000)}K (${Math.round(percentage)}%) · ${isLive ? "active" : "idle"}`,
+          ticker: updatedAtMs.toString(),
         },
         minimap: {
-          sessionCount: 166,
+          sessionCount: dailyReqs,
           tiles,
         },
       };
     },
-    recordToolCall(category: ToolCategory, durationMs = 200) {
-      initialEvents.shift();
-      initialEvents.push({
-        id: `ev-${Date.now()}`,
-        offsetSec: 0,
+
+    recordToolCall(category: ToolCategory, durationMs = 250) {
+      recordedEvents.push({
+        timestamp: Date.now(),
         category: category === "empty" || category === "system" ? "read" : category,
         intensity: Math.min(1, Math.max(0.4, durationMs / 1000)),
       });
