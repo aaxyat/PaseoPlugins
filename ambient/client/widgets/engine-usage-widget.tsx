@@ -129,23 +129,6 @@ export function EngineUsageWidget({
             <Badge label={agData.model} backgroundColor="rgba(56, 217, 245, 0.14)" color="#38d9f5" />
           </View>
 
-          {/* Context Window Bar */}
-          <View style={{ gap: 6 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
-              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
-                context window
-              </Text>
-              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
-                {(agData.usedTokens / 1000).toFixed(1)}k / {(agData.limit / 1000000).toFixed(2)}M ({agData.percentage}%)
-              </Text>
-            </View>
-            <ProgressBar
-              percentage={agData.percentage}
-              height={8}
-              color={agData.percentage < 65 ? "#4ade80" : agData.percentage < 85 ? "#fbbf24" : "#f87171"}
-            />
-          </View>
-
           {/* 5-Hour Limit Bar */}
           <View style={{ gap: 6, paddingTop: 2 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -199,23 +182,6 @@ export function EngineUsageWidget({
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
             <Text style={{ fontSize: FONT_SIZE.body, color: colors.foregroundMuted }}>model</Text>
             <Badge label={ocData.model} backgroundColor="rgba(192, 132, 252, 0.14)" color="#c084fc" />
-          </View>
-
-          {/* Context Window Bar */}
-          <View style={{ gap: 6 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
-              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.medium, color: colors.foreground }}>
-                context window
-              </Text>
-              <Text style={{ fontSize: FONT_SIZE.body, fontWeight: FONT_WEIGHT.bold, color: colors.foreground, fontFamily: MONO }}>
-                {(ocData.usedTokens / 1000).toFixed(1)}k / {(ocData.limit / 1000).toFixed(0)}k ({ocData.percentage}%)
-              </Text>
-            </View>
-            <ProgressBar
-              percentage={ocData.percentage}
-              color="#c084fc"
-              height={8}
-            />
           </View>
 
           {/* OpenCode Session Metrics */}

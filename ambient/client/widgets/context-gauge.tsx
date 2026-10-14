@@ -11,19 +11,19 @@ export function ContextGaugeWidget({
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
 }) {
   return (
-    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 16 }}>
+    <AmbientCard backgroundColor={colors.surface} borderColor={colors.border} style={{ padding: 10, gap: 8 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
         <CircularGauge
           percentage={data.percentage}
-          size={60}
-          strokeWidth={5}
+          size={46}
+          strokeWidth={4}
           accentColor="#4ade80"
           textColor={colors.foreground}
         />
-        <View style={{ flex: 1, gap: 4 }}>
+        <View style={{ flex: 1, gap: 2 }}>
           <Text
             style={{
-              fontSize: FONT_SIZE.header,
+              fontSize: FONT_SIZE.body,
               fontWeight: FONT_WEIGHT.semibold,
               color: colors.foreground,
               fontFamily: MONO,
@@ -33,7 +33,7 @@ export function ContextGaugeWidget({
           </Text>
           <Text
             style={{
-              fontSize: FONT_SIZE.label,
+              fontSize: FONT_SIZE.caption,
               color: colors.foregroundMuted,
             }}
           >
@@ -48,20 +48,20 @@ export function ContextGaugeWidget({
           borderBottomWidth: 1,
           borderStyle: "dashed",
           borderColor: colors.border,
-          marginVertical: 2,
+          marginVertical: 1,
         }}
       />
 
-      {/* Sparkline & Throughput */}
-      <View style={{ gap: 6 }}>
-        <Sparkline data={data.sparkline} height={28} color="#4ade80" />
+      {/* Sparkline & Throughput (Compact) */}
+      <View style={{ gap: 4 }}>
+        <Sparkline data={data.sparkline} height={20} color="#4ade80" />
         <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted }}>
+          <Text style={{ fontSize: 10, color: colors.foregroundMuted }}>
             throughput
           </Text>
           <Text
             style={{
-              fontSize: FONT_SIZE.caption,
+              fontSize: 10,
               fontWeight: FONT_WEIGHT.bold,
               color: "#4ade80",
               fontFamily: MONO,

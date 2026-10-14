@@ -120,7 +120,7 @@ export function CircularGauge({
       />
       <Text
         style={{
-          fontSize: FONT_SIZE.small,
+          fontSize: size <= 48 ? 10 : FONT_SIZE.small,
           fontWeight: FONT_WEIGHT.bold,
           color: textColor,
           fontFamily: MONO,
