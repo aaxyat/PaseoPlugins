@@ -20,17 +20,25 @@ import { StatusWidget } from "./widgets/status-widget.tsx";
 import { MinimapWidget } from "./widgets/minimap-widget.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "./design-tokens.ts";
 
+export interface AmbientPanelProps {
+  theme: { colors: Record<string, string> };
+  layout: { compact: boolean; platform?: string };
+  workspaceId?: string;
+  agentId?: string;
+}
+
 export function AmbientPanel({
   theme,
   layout,
   workspaceId,
-}: PluginWorkspacePanelProps) {
+  agentId,
+}: AmbientPanelProps) {
   const getTelemetry = useRpc(ambientTelemetryRpc);
   const triggerManager = useRpc(ambientTriggerManagerRpc);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["ambient", "telemetry", workspaceId],
-    queryFn: () => getTelemetry({ workspaceId }),
+    queryKey: ["ambient", "telemetry", workspaceId ?? "global", agentId ?? "default"],
+    queryFn: () => getTelemetry({ workspaceId: workspaceId || undefined, agentId: agentId || undefined }),
     refetchInterval: 3000,
   });
 
