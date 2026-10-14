@@ -31,10 +31,10 @@ export function StatusWidget({
       <View style={{ gap: 8 }}>
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
           <Text style={{ fontSize: FONT_SIZE.label, color: colors.foregroundMuted, fontFamily: MONO }}>
-            magic-context
+            engine
           </Text>
           <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
-            {data.magicContext}
+            {data.provider}
           </Text>
         </View>
 

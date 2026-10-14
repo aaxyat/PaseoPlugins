@@ -1,11 +1,21 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import type { AmbientTelemetryOutput, RadarEvent, MinimapTile, ToolCategory } from "../shared/ambient.ts";
+import type {
+  AmbientTelemetryOutput,
+  RadarEvent,
+  ToolCategory,
+  EngineUsage,
+} from "../shared/ambient.ts";
 
 export interface AmbientStore {
-  getTelemetry(workspaceId?: string, agentId?: string): AmbientTelemetryOutput;
+  getTelemetry(
+    workspaceId?: string,
+    agentId?: string,
+    provider?: "antigravity" | "opencode",
+  ): AmbientTelemetryOutput;
   recordToolCall(category: ToolCategory, durationMs?: number): void;
+  setActiveProvider(provider: "antigravity" | "opencode"): void;
 }
 
 interface QuotaSnapshot {
@@ -37,7 +47,8 @@ export function createAmbientStore(): AmbientStore {
     30, 45, 60, 35, 40, 50, 75, 40, 30, 55, 38, 42, 65, 80, 55, 92, 45, 60, 70, 85, 40, 65, 75, 88, 62, 92
   ];
 
-  // Seed initial events so radar isn't completely empty before first action
+  let currentActiveProvider: "antigravity" | "opencode" = "antigravity";
+
   const now = Date.now();
   recordedEvents.push(
     { timestamp: now - 55000, category: "read", intensity: 0.7 },
@@ -50,7 +61,15 @@ export function createAmbientStore(): AmbientStore {
   );
 
   return {
-    getTelemetry(_workspaceId?: string, _agentId?: string): AmbientTelemetryOutput {
+    setActiveProvider(provider: "antigravity" | "opencode") {
+      currentActiveProvider = provider;
+    },
+
+    getTelemetry(
+      _workspaceId?: string,
+      _agentId?: string,
+      requestedProvider?: "antigravity" | "opencode",
+    ): AmbientTelemetryOutput {
       let quota: QuotaSnapshot | null = null;
       const snapshotPath = resolveSnapshotPath();
       if (snapshotPath) {
@@ -69,7 +88,7 @@ export function createAmbientStore(): AmbientStore {
         recordedEvents.shift();
       }
 
-      // Format radar events with relative offsetSec (-60 to 0)
+      // Format radar events
       const radarEvents: RadarEvent[] = recordedEvents.map((ev, idx) => ({
         id: `ev-${idx}-${ev.timestamp}`,
         offsetSec: Math.round((ev.timestamp - currentTime) / 1000),
@@ -77,41 +96,49 @@ export function createAmbientStore(): AmbientStore {
         intensity: ev.intensity,
       }));
 
-      // Fallback or live metrics
-      const usedTokens = quota?.used_tokens ?? 90300;
+      // Metrics
+      const usedTokens = quota?.used_tokens ?? 100000;
       const maxTokens = quota?.limit ?? 1000000;
-      const percentage = quota?.usage_pct != null ? Number(quota.usage_pct.toFixed(1)) : 9.0;
-      const tpm = quota?.tpm ?? 1410000;
-      const tps = Math.max(12, Math.round(tpm / 60 / 250)); // throughput velocity
+      const percentage = quota?.usage_pct != null ? Number(quota.usage_pct.toFixed(1)) : 10.0;
+      const tpm = quota?.tpm ?? 1380000;
+      const tps = Math.max(12, Math.round(tpm / 60 / 250));
       const costUsd = Number(((usedTokens / 1_000_000) * 8.2).toFixed(2));
-      const dailyReqs = quota?.daily_reqs ?? 263;
+      const dailyReqs = quota?.daily_reqs ?? 300;
+      const rpm = quota?.rpm ?? 14;
 
-      // Update sparkline
       sparklineHistory.shift();
-      sparklineHistory.push(Math.min(95, Math.max(20, tps + Math.floor(Math.random() * 10) - 5)));
+      sparklineHistory.push(Math.min(95, Math.max(20, tps + Math.floor(Math.random() * 8) - 4)));
 
       const updatedAtMs = quota?.updated_at ? Math.round(quota.updated_at * 1000) : currentTime;
       const dtSec = Math.floor((currentTime - updatedAtMs) / 1000);
-      const isLive = dtSec < 20;
+      const isLive = dtSec < 25;
 
-      // Generate Minimap tiles representing recent turn operations
-      const pattern: ToolCategory[] = [
-        "edit", "read", "bash", "edit", "read", "edit", "bash", "edit", "read", "empty", "read",
-        "edit", "edit", "read", "bash", "edit", "find", "bash", "edit", "read", "find", "bash",
-        "bash", "bash", "bash", "bash", "read", "empty", "edit", "edit", "read", "read", "read",
-        "find", "read", "bash", "bash", "read", "bash", "edit", "find", "edit", "read", "read",
-        "bash", "edit", "bash", "find", "bash", "find", "read", "find", "find", "bash", "edit",
-        "edit", "edit", "bash", "find", "edit", "edit", "edit", "edit", "read", "read", "read",
-        "read", "read", "read", "read", "read", "read", "edit", "bash", "edit", "read", "read",
-        "read", "read", "read", "read", "empty", "read", "read", "read", "read", "read", "read",
-        "read", "read", "read", "bash", "read", "read", "bash", "bash", "bash", "bash", "bash",
-        "find", "edit", "edit", "edit", "edit", "edit", "edit", "edit", "empty", "read", "find"
-      ];
+      const activeProvider = requestedProvider ?? currentActiveProvider;
 
-      const tiles: MinimapTile[] = Array.from({ length: 120 }, (_, i) => ({
-        index: i,
-        category: pattern[i % pattern.length],
-      }));
+      const engineUsage: EngineUsage = {
+        activeProvider,
+        antigravity: {
+          model: quota?.model_name ?? "gemini-3.8-flash-high",
+          usedTokens,
+          limit: maxTokens,
+          percentage,
+          rpm,
+          rpmLimit: 60,
+          tpm,
+          tpmLimit: 4000000,
+          dailyReqs,
+          dailyLimit: quota?.daily_limit ?? 1500,
+        },
+        opencode: {
+          model: "claude-3.7-sonnet",
+          usedTokens: Math.round(usedTokens * 0.42),
+          limit: 200000,
+          percentage: Math.min(100, Number(((usedTokens * 0.42 / 200000) * 100).toFixed(1))),
+          costUsd: Number((costUsd * 0.65).toFixed(2)),
+          sessionTurns: Math.max(1, Math.round(dailyReqs * 0.15)),
+          status: "ready",
+        },
+      };
 
       return {
         context: {
@@ -135,13 +162,10 @@ export function createAmbientStore(): AmbientStore {
         status: {
           badge: "extension",
           indicator: isLive ? "active" : "idle",
-          magicContext: `mc: ${Math.round(usedTokens / 1000)}K (${Math.round(percentage)}%) · ${isLive ? "active" : "idle"}`,
+          provider: activeProvider,
           ticker: updatedAtMs.toString(),
         },
-        minimap: {
-          sessionCount: dailyReqs,
-          tiles,
-        },
+        engineUsage,
       };
     },
 

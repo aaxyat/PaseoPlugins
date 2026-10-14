@@ -12,16 +12,42 @@ export const RadarEventSchema = z.object({
 });
 export type RadarEvent = z.infer<typeof RadarEventSchema>;
 
-export const MinimapTileSchema = z.object({
-  index: z.number(),
-  category: ToolCategorySchema,
-  active: z.boolean().optional(),
+export const AntigravityUsageSchema = z.object({
+  model: z.string(),
+  usedTokens: z.number(),
+  limit: z.number(),
+  percentage: z.number(),
+  rpm: z.number(),
+  rpmLimit: z.number(),
+  tpm: z.number(),
+  tpmLimit: z.number(),
+  dailyReqs: z.number(),
+  dailyLimit: z.number(),
 });
-export type MinimapTile = z.infer<typeof MinimapTileSchema>;
+export type AntigravityUsage = z.infer<typeof AntigravityUsageSchema>;
+
+export const OpenCodeUsageSchema = z.object({
+  model: z.string(),
+  usedTokens: z.number(),
+  limit: z.number(),
+  percentage: z.number(),
+  costUsd: z.number(),
+  sessionTurns: z.number(),
+  status: z.string(),
+});
+export type OpenCodeUsage = z.infer<typeof OpenCodeUsageSchema>;
+
+export const EngineUsageSchema = z.object({
+  activeProvider: z.enum(["antigravity", "opencode"]),
+  antigravity: AntigravityUsageSchema,
+  opencode: OpenCodeUsageSchema,
+});
+export type EngineUsage = z.infer<typeof EngineUsageSchema>;
 
 export const AmbientTelemetryInputSchema = z.object({
   workspaceId: z.string().optional(),
   agentId: z.string().optional(),
+  provider: z.enum(["antigravity", "opencode"]).optional(),
 });
 export type AmbientTelemetryInput = z.infer<typeof AmbientTelemetryInputSchema>;
 
@@ -47,13 +73,10 @@ export const AmbientTelemetryOutputSchema = z.object({
   status: z.object({
     badge: z.string(),
     indicator: z.enum(["active", "idle", "warning"]),
-    magicContext: z.string(),
+    provider: z.string(),
     ticker: z.string(),
   }),
-  minimap: z.object({
-    sessionCount: z.number(),
-    tiles: z.array(MinimapTileSchema),
-  }),
+  engineUsage: EngineUsageSchema,
 });
 export type AmbientTelemetryOutput = z.infer<typeof AmbientTelemetryOutputSchema>;
 

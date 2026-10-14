@@ -10,9 +10,14 @@ export default function contribute(server: PluginServerContext) {
   server.handle(ambientTelemetryRpc, createTelemetryHandler(store));
   server.handle(ambientTriggerManagerRpc, createOpenManagerHandler(store));
 
-  // Listen to turn completions to record tool calls
+  // Listen to turn completions to record tool calls and track active provider
   const removeTurnEnded = server.on("agent.turn_ended", (event) => {
     try {
+      if (event.agent.provider.toLowerCase().includes("opencode")) {
+        store.setActiveProvider("opencode");
+      } else if (event.agent.provider.toLowerCase().includes("antigravity")) {
+        store.setActiveProvider("antigravity");
+      }
       for (const item of event.timeline) {
         if (item.type === "tool_call") {
           const name = item.name.toLowerCase();

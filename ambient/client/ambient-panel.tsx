@@ -17,7 +17,7 @@ import { ContextGaugeWidget } from "./widgets/context-gauge.tsx";
 import { AgentRadarWidget } from "./widgets/agent-radar.tsx";
 import { SubagentsWidget } from "./widgets/subagents-widget.tsx";
 import { StatusWidget } from "./widgets/status-widget.tsx";
-import { MinimapWidget } from "./widgets/minimap-widget.tsx";
+import { EngineUsageWidget } from "./widgets/engine-usage-widget.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "./design-tokens.ts";
 
 export interface AmbientPanelProps {
@@ -119,7 +119,7 @@ export function AmbientPanel({
             onOpenManager={() => triggerManager({ workspaceId })}
           />
           <StatusWidget data={data.status} colors={colors} />
-          <MinimapWidget data={data.minimap} colors={colors} />
+          <EngineUsageWidget data={data.engineUsage} colors={colors} />
         </ScrollView>
       ) : null}
     </View>

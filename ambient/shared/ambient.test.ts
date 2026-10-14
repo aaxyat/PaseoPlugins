@@ -2,13 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { AmbientTelemetryOutputSchema } from "./ambient.ts";
 
-test("AmbientTelemetryOutputSchema validates telemetry output structure", () => {
+test("AmbientTelemetryOutputSchema validates telemetry output structure with EngineUsage", () => {
   const sample = {
     context: {
-      usedTokens: 94000,
-      maxTokens: 1048576,
-      percentage: 9.0,
-      costUsd: 0.73,
+      usedTokens: 99700,
+      maxTokens: 1000000,
+      percentage: 10.0,
+      costUsd: 0.81,
       throughputTps: 92,
       sparkline: [20, 45, 30, 60, 40, 85, 55, 92],
     },
@@ -28,20 +28,37 @@ test("AmbientTelemetryOutputSchema validates telemetry output structure", () => 
     status: {
       badge: "extension",
       indicator: "active",
-      magicContext: "mc: 94K (9%) · idle",
-      ticker: "1791955784655",
+      provider: "antigravity",
+      ticker: "1791957502497",
     },
-    minimap: {
-      sessionCount: 166,
-      tiles: [
-        { index: 0, category: "read" },
-        { index: 1, category: "find" },
-      ],
+    engineUsage: {
+      activeProvider: "antigravity",
+      antigravity: {
+        model: "gemini-3.8-flash-high",
+        usedTokens: 99700,
+        limit: 1000000,
+        percentage: 10.0,
+        rpm: 14,
+        rpmLimit: 60,
+        tpm: 1370000,
+        tpmLimit: 4000000,
+        dailyReqs: 297,
+        dailyLimit: 1500,
+      },
+      opencode: {
+        model: "claude-3.7-sonnet",
+        usedTokens: 15000,
+        limit: 200000,
+        percentage: 7.5,
+        costUsd: 0.18,
+        sessionTurns: 12,
+        status: "ready",
+      },
     },
   };
 
   const parsed = AmbientTelemetryOutputSchema.parse(sample);
-  assert.equal(parsed.context.percentage, 9.0);
-  assert.equal(parsed.radar.events.length, 2);
-  assert.equal(parsed.status.badge, "extension");
+  assert.equal(parsed.context.percentage, 10.0);
+  assert.equal(parsed.engineUsage.activeProvider, "antigravity");
+  assert.equal(parsed.engineUsage.antigravity.model, "gemini-3.8-flash-high");
 });

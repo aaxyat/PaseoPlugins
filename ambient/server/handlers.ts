@@ -3,7 +3,7 @@ import type { AmbientTelemetryInput, AmbientTelemetryOutput } from "../shared/am
 
 export function createTelemetryHandler(store: AmbientStore) {
   return async (input: AmbientTelemetryInput): Promise<AmbientTelemetryOutput> => {
-    return store.getTelemetry(input.workspaceId, input.agentId);
+    return store.getTelemetry(input.workspaceId, input.agentId, input.provider);
   };
 }
 
