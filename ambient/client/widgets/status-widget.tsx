@@ -7,9 +7,13 @@ export function StatusWidget({
   data,
   colors,
 }: {
-  data: AmbientTelemetryOutput["status"];
+  data?: NonNullable<AmbientTelemetryOutput["status"]>;
   colors: { foreground: string; foregroundMuted: string; border: string; surface: string };
 }) {
+  const badge = data?.badge ?? "system";
+  const provider = data?.provider ?? "ready";
+  const ticker = data?.ticker ?? "--";
+
   return (
     <AmbientCard backgroundColor={colors.surface} borderColor={colors.border}>
       {/* Header */}
@@ -21,7 +25,7 @@ export function StatusWidget({
           </Text>
         </View>
         <Badge
-          label={data.badge}
+          label={badge}
           backgroundColor="rgba(255, 255, 255, 0.07)"
           color={colors.foregroundMuted}
         />
@@ -34,7 +38,7 @@ export function StatusWidget({
             engine
           </Text>
           <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
-            {data.provider}
+            {provider}
           </Text>
         </View>
 
@@ -43,7 +47,7 @@ export function StatusWidget({
             ticker
           </Text>
           <Text style={{ fontSize: FONT_SIZE.label, color: colors.foreground, fontFamily: MONO }}>
-            {data.ticker}
+            {ticker}
           </Text>
         </View>
       </View>

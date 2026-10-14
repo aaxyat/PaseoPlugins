@@ -16,7 +16,7 @@ import { ambientTelemetryRpc, ambientTriggerManagerRpc } from "../shared/ambient
 import { ContextGaugeWidget } from "./widgets/context-gauge.tsx";
 import { AgentRadarWidget } from "./widgets/agent-radar.tsx";
 import { SubagentsWidget } from "./widgets/subagents-widget.tsx";
-import { StatusWidget } from "./widgets/status-widget.tsx";
+import { TokensWidget } from "./widgets/tokens-widget.tsx";
 import { EngineUsageWidget } from "./widgets/engine-usage-widget.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "./design-tokens.ts";
 
@@ -118,7 +118,7 @@ export function AmbientPanel({
             colors={colors}
             onOpenManager={() => triggerManager({ workspaceId })}
           />
-          <StatusWidget data={data.status} colors={colors} />
+          <TokensWidget data={data.tokens} colors={colors} />
           <AgentRadarWidget data={data.radar} colors={colors} />
         </ScrollView>
       ) : null}

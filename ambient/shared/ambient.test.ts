@@ -25,6 +25,14 @@ test("AmbientTelemetryOutputSchema validates 5-hour and weekly limits for Antigr
       activeCount: 0,
       description: "Agents spawned by task calls show up here, live.",
     },
+    tokens: {
+      totalInputTokens: 29350000,
+      cacheHitTokens: 28330000,
+      cacheHitRatio: 96.5,
+      outputTokens: 103000,
+      rawApiCostUsd: 4.46,
+      modelName: "gemini-3.8-flash-high",
+    },
     status: {
       badge: "extension",
       indicator: "active",
@@ -66,4 +74,7 @@ test("AmbientTelemetryOutputSchema validates 5-hour and weekly limits for Antigr
   const parsed = AmbientTelemetryOutputSchema.parse(sample);
   assert.equal(parsed.engineUsage.antigravity.fiveHourLimit.resetsIn, "2h 45m");
   assert.equal(parsed.engineUsage.antigravity.weeklyLimit.percentage, 24.0);
+  assert.equal(parsed.tokens.totalInputTokens, 29350000);
+  assert.equal(parsed.tokens.cacheHitRatio, 96.5);
+  assert.equal(parsed.tokens.rawApiCostUsd, 4.46);
 });

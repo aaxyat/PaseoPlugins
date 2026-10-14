@@ -57,6 +57,17 @@ export const AmbientTelemetryInputSchema = z.object({
 });
 export type AmbientTelemetryInput = z.infer<typeof AmbientTelemetryInputSchema>;
 
+export const TokensUsageSchema = z.object({
+  totalInputTokens: z.number(),
+  cacheHitTokens: z.number(),
+  cacheHitRatio: z.number(), // percentage e.g. 96.5
+  outputTokens: z.number(),
+  rawApiCostUsd: z.number(), // cost for real API calls if no subscription
+  cachedApiCostUsd: z.number().optional(),
+  modelName: z.string().optional(),
+});
+export type TokensUsage = z.infer<typeof TokensUsageSchema>;
+
 export const AmbientTelemetryOutputSchema = z.object({
   context: z.object({
     usedTokens: z.number(),
@@ -76,12 +87,15 @@ export const AmbientTelemetryOutputSchema = z.object({
     activeCount: z.number(),
     description: z.string(),
   }),
-  status: z.object({
-    badge: z.string(),
-    indicator: z.enum(["active", "idle", "warning"]),
-    provider: z.string(),
-    ticker: z.string(),
-  }),
+  tokens: TokensUsageSchema,
+  status: z
+    .object({
+      badge: z.string(),
+      indicator: z.enum(["active", "idle", "warning"]),
+      provider: z.string(),
+      ticker: z.string(),
+    })
+    .optional(),
   engineUsage: EngineUsageSchema,
 });
 export type AmbientTelemetryOutput = z.infer<typeof AmbientTelemetryOutputSchema>;
