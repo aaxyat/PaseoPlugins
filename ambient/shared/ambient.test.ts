@@ -2,13 +2,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { AmbientTelemetryOutputSchema } from "./ambient.ts";
 
-test("AmbientTelemetryOutputSchema validates telemetry output structure with EngineUsage", () => {
+test("AmbientTelemetryOutputSchema validates 5-hour and weekly limits for Antigravity", () => {
   const sample = {
     context: {
-      usedTokens: 99700,
+      usedTokens: 108600,
       maxTokens: 1000000,
-      percentage: 10.0,
-      costUsd: 0.81,
+      percentage: 10.9,
+      costUsd: 0.89,
       throughputTps: 92,
       sparkline: [20, 45, 30, 60, 40, 85, 55, 92],
     },
@@ -35,15 +35,21 @@ test("AmbientTelemetryOutputSchema validates telemetry output structure with Eng
       activeProvider: "antigravity",
       antigravity: {
         model: "gemini-3.8-flash-high",
-        usedTokens: 99700,
+        usedTokens: 108600,
         limit: 1000000,
-        percentage: 10.0,
-        rpm: 14,
-        rpmLimit: 60,
-        tpm: 1370000,
-        tpmLimit: 4000000,
-        dailyReqs: 297,
-        dailyLimit: 1500,
+        percentage: 10.9,
+        fiveHourLimit: {
+          percentage: 18.5,
+          usedTokens: 185000,
+          limitTokens: 1000000,
+          resetsIn: "2h 45m",
+        },
+        weeklyLimit: {
+          percentage: 24.0,
+          usedTokens: 1200000,
+          limitTokens: 5000000,
+          resetsIn: "4d 8h",
+        },
       },
       opencode: {
         model: "claude-3.7-sonnet",
@@ -58,7 +64,6 @@ test("AmbientTelemetryOutputSchema validates telemetry output structure with Eng
   };
 
   const parsed = AmbientTelemetryOutputSchema.parse(sample);
-  assert.equal(parsed.context.percentage, 10.0);
-  assert.equal(parsed.engineUsage.activeProvider, "antigravity");
-  assert.equal(parsed.engineUsage.antigravity.model, "gemini-3.8-flash-high");
+  assert.equal(parsed.engineUsage.antigravity.fiveHourLimit.resetsIn, "2h 45m");
+  assert.equal(parsed.engineUsage.antigravity.weeklyLimit.percentage, 24.0);
 });

@@ -145,58 +145,38 @@ export function EngineUsageWidget({
             />
           </View>
 
-          {/* Rate Limits */}
-          <View style={{ gap: 6, paddingTop: 4 }}>
-            {/* RPM */}
-            <View style={{ gap: 3 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
-                  requests/min (RPM)
-                </Text>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
-                  {agData.rpm} / {agData.rpmLimit}
-                </Text>
-              </View>
-              <ProgressBar
-                percentage={(agData.rpm / agData.rpmLimit) * 100}
-                color="#38d9f5"
-                height={3}
-              />
+          {/* 5-Hour Limit Bar */}
+          <View style={{ gap: 4, paddingTop: 2 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
+                5-hour limit
+              </Text>
+              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
+                {agData.fiveHourLimit.percentage}% · resets in {agData.fiveHourLimit.resetsIn}
+              </Text>
             </View>
+            <ProgressBar
+              percentage={agData.fiveHourLimit.percentage}
+              color="#38d9f5"
+              height={4}
+            />
+          </View>
 
-            {/* TPM */}
-            <View style={{ gap: 3 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
-                  tokens/min (TPM)
-                </Text>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
-                  {(agData.tpm / 1000000).toFixed(2)}M / {(agData.tpmLimit / 1000000).toFixed(1)}M
-                </Text>
-              </View>
-              <ProgressBar
-                percentage={(agData.tpm / agData.tpmLimit) * 100}
-                color="#c084fc"
-                height={3}
-              />
+          {/* Weekly Limit Bar */}
+          <View style={{ gap: 4, paddingTop: 2 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
+                weekly limit
+              </Text>
+              <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
+                {agData.weeklyLimit.percentage}% · resets in {agData.weeklyLimit.resetsIn}
+              </Text>
             </View>
-
-            {/* Daily Requests */}
-            <View style={{ gap: 3 }}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foregroundMuted, fontFamily: MONO }}>
-                  daily quota (RPD)
-                </Text>
-                <Text style={{ fontSize: FONT_SIZE.caption, color: colors.foreground, fontFamily: MONO }}>
-                  {agData.dailyReqs} / {agData.dailyLimit}
-                </Text>
-              </View>
-              <ProgressBar
-                percentage={(agData.dailyReqs / agData.dailyLimit) * 100}
-                color="#fbbf24"
-                height={3}
-              />
-            </View>
+            <ProgressBar
+              percentage={agData.weeklyLimit.percentage}
+              color="#c084fc"
+              height={4}
+            />
           </View>
         </View>
       )}

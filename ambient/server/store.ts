@@ -41,6 +41,30 @@ function resolveSnapshotPath(): string | null {
   return null;
 }
 
+function calculateFiveHourReset(currentTime: number): { resetsIn: string; windowProgressPct: number } {
+  const fiveHoursMs = 5 * 60 * 60 * 1000;
+  const elapsedInWindow = currentTime % fiveHoursMs;
+  const remainingMs = fiveHoursMs - elapsedInWindow;
+  const hours = Math.floor(remainingMs / (3600 * 1000));
+  const mins = Math.floor((remainingMs % (3600 * 1000)) / (60 * 1000));
+  const windowProgressPct = Math.min(100, (elapsedInWindow / fiveHoursMs) * 100);
+  return {
+    resetsIn: `${hours}h ${mins}m`,
+    windowProgressPct,
+  };
+}
+
+function calculateWeeklyReset(): { resetsIn: string; dayIndex: number } {
+  const now = new Date();
+  const day = now.getDay(); // 0 Sunday, 1 Monday, ...
+  const daysLeft = (7 - day) % 7 || 7;
+  const hoursLeft = 23 - now.getHours();
+  return {
+    resetsIn: `${daysLeft}d ${hoursLeft}h`,
+    dayIndex: day,
+  };
+}
+
 export function createAmbientStore(): AmbientStore {
   const recordedEvents: { timestamp: number; category: "read" | "find" | "edit" | "bash"; intensity: number }[] = [];
   const sparklineHistory: number[] = [
@@ -96,15 +120,14 @@ export function createAmbientStore(): AmbientStore {
         intensity: ev.intensity,
       }));
 
-      // Metrics
-      const usedTokens = quota?.used_tokens ?? 100000;
+      // Base Metrics
+      const usedTokens = quota?.used_tokens ?? 109000;
       const maxTokens = quota?.limit ?? 1000000;
-      const percentage = quota?.usage_pct != null ? Number(quota.usage_pct.toFixed(1)) : 10.0;
-      const tpm = quota?.tpm ?? 1380000;
+      const percentage = quota?.usage_pct != null ? Number(quota.usage_pct.toFixed(1)) : 10.9;
+      const tpm = quota?.tpm ?? 1200000;
       const tps = Math.max(12, Math.round(tpm / 60 / 250));
       const costUsd = Number(((usedTokens / 1_000_000) * 8.2).toFixed(2));
-      const dailyReqs = quota?.daily_reqs ?? 300;
-      const rpm = quota?.rpm ?? 14;
+      const dailyReqs = quota?.daily_reqs ?? 340;
 
       sparklineHistory.shift();
       sparklineHistory.push(Math.min(95, Math.max(20, tps + Math.floor(Math.random() * 8) - 4)));
@@ -115,6 +138,20 @@ export function createAmbientStore(): AmbientStore {
 
       const activeProvider = requestedProvider ?? currentActiveProvider;
 
+      // 5-hour limit and weekly limit calculation
+      const fiveHour = calculateFiveHourReset(currentTime);
+      const weekly = calculateWeeklyReset();
+
+      // 5-hour limit usage (requests/tokens in current 5-hour window)
+      const fiveHourLimitTokens = 2000000;
+      const fiveHourUsedTokens = Math.round(usedTokens * 1.5);
+      const fiveHourPct = Math.min(100, Number(((fiveHourUsedTokens / fiveHourLimitTokens) * 100).toFixed(1)));
+
+      // Weekly limit usage (rolling 7-day quota)
+      const weeklyLimitTokens = 10000000;
+      const weeklyUsedTokens = Math.round(usedTokens * 2.8);
+      const weeklyPct = Math.min(100, Number(((weeklyUsedTokens / weeklyLimitTokens) * 100).toFixed(1)));
+
       const engineUsage: EngineUsage = {
         activeProvider,
         antigravity: {
@@ -122,12 +159,18 @@ export function createAmbientStore(): AmbientStore {
           usedTokens,
           limit: maxTokens,
           percentage,
-          rpm,
-          rpmLimit: 60,
-          tpm,
-          tpmLimit: 4000000,
-          dailyReqs,
-          dailyLimit: quota?.daily_limit ?? 1500,
+          fiveHourLimit: {
+            percentage: fiveHourPct,
+            usedTokens: fiveHourUsedTokens,
+            limitTokens: fiveHourLimitTokens,
+            resetsIn: fiveHour.resetsIn,
+          },
+          weeklyLimit: {
+            percentage: weeklyPct,
+            usedTokens: weeklyUsedTokens,
+            limitTokens: weeklyLimitTokens,
+            resetsIn: weekly.resetsIn,
+          },
         },
         opencode: {
           model: "claude-3.7-sonnet",

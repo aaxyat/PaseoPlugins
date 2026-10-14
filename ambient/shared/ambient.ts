@@ -17,12 +17,18 @@ export const AntigravityUsageSchema = z.object({
   usedTokens: z.number(),
   limit: z.number(),
   percentage: z.number(),
-  rpm: z.number(),
-  rpmLimit: z.number(),
-  tpm: z.number(),
-  tpmLimit: z.number(),
-  dailyReqs: z.number(),
-  dailyLimit: z.number(),
+  fiveHourLimit: z.object({
+    percentage: z.number(),
+    usedTokens: z.number(),
+    limitTokens: z.number(),
+    resetsIn: z.string(),
+  }),
+  weeklyLimit: z.object({
+    percentage: z.number(),
+    usedTokens: z.number(),
+    limitTokens: z.number(),
+    resetsIn: z.string(),
+  }),
 });
 export type AntigravityUsage = z.infer<typeof AntigravityUsageSchema>;
 
