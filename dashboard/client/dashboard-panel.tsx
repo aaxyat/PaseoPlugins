@@ -4,7 +4,7 @@ import {
 } from "@getpaseo/plugin/client";
 import { Icon } from "@getpaseo/plugin/client/react-native";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ScrollView,
   View,
@@ -20,9 +20,9 @@ import { TokensWidget } from "./widgets/tokens-widget.tsx";
 import { EngineUsageWidget } from "./widgets/engine-usage-widget.tsx";
 import { FONT_SIZE, FONT_WEIGHT, MONO } from "./design-tokens.ts";
 import {
-  useDashboardVisibility,
   setDashboardVisible,
 } from "./dashboard-visibility.ts";
+import { collapseExplorerSidebar } from "./web.ts";
 
 export interface DashboardPanelProps {
   theme: { colors: Record<string, string> };
@@ -59,11 +59,10 @@ export function DashboardPanel({
   }, [theme]);
 
   const [panelWidth, setPanelWidth] = useState<number>(300);
-  const isVisible = useDashboardVisibility(workspaceId ?? "global");
 
-  if (!isVisible) {
-    return null;
-  }
+  useEffect(() => {
+    setDashboardVisible(workspaceId ?? "global", true);
+  }, [workspaceId]);
 
   const isNarrow = panelWidth < 280;
   const isCompact = panelWidth < 340 || layout.compact;
@@ -114,7 +113,10 @@ export function DashboardPanel({
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close panel"
-            onPress={() => setDashboardVisible(workspaceId ?? "global", false)}
+            onPress={() => {
+              setDashboardVisible(workspaceId ?? "global", false);
+              collapseExplorerSidebar();
+            }}
             style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
           >
             <Icon name="X" size={16} color={colors.foregroundMuted} />

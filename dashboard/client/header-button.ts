@@ -4,6 +4,7 @@ import {
   setDashboardVisible,
   watchDashboardVisibility,
 } from "./dashboard-visibility.ts";
+import { collapseExplorerSidebar } from "./web.ts";
 
 type WorkspacesApi = PluginClientContext["paseo"]["workspaces"];
 type ListResult = Awaited<ReturnType<WorkspacesApi["list"]>>;
@@ -14,7 +15,7 @@ const PAGE_LIMIT = 200;
 
 /**
  * Contributes a header button for each workspace to toggle the Dashboard.
- * Clicking once opens and activates the dashboard; clicking again hides it.
+ * Clicking once opens and activates the dashboard; clicking again hides it by collapsing the sidebar.
  */
 export function contributeHeaderButtons(
   client: PluginClientContext,
@@ -48,13 +49,9 @@ export function contributeHeaderButtons(
             onPress() {
               const currentlyVisible = isDashboardVisible(workspaceId);
               if (currentlyVisible) {
-                // Clicked again while open -> Hide dashboard
+                // Clicked again while open -> Hide dashboard and collapse the sidebar
                 setDashboardVisible(workspaceId, false);
-                try {
-                  client.openPanel("files", { workspaceId, location: "explorer" });
-                } catch {
-                  // ignore if files panel is not openable via rpc
-                }
+                collapseExplorerSidebar();
               } else {
                 // Clicked while hidden -> Activate and open dashboard
                 setDashboardVisible(workspaceId, true);
